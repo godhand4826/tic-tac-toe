@@ -4,19 +4,19 @@ import './index.css';
 
 function Square(props) {
     return (
-        <button className="square" onClick={props.onClick}>
+        <button className="square" onClick={props.onClick} style={{color:props.isSpot?"red":"black"}}>
             {props.value}
         </button>
     );
 }
 
 class Board extends React.Component {
-    renderSquare(x, y) {
+    renderSquare(x, y, isSpot) {
         return <Square
             value={this.props.squares[x][y]}
             onClick={() => this.props.onClick(x, y)}
             key={x + y * 3}
-
+            isSpot={isSpot}
         />;
     }
 
@@ -26,7 +26,7 @@ class Board extends React.Component {
         for (let y = 0; y <= 2; y++) {
             let children = []
             for (let x = 0; x <= 2; x++) {
-                children.push(this.renderSquare(x, y))
+                children.push(this.renderSquare(x, y,this.props.spots.includes(`${x},${y}`)))
             }
             board.push(<div className="board-row" key={y}>{children}</div>)
         }
@@ -97,7 +97,7 @@ class Game extends React.Component {
     render() {
         const history = this.state.history
         const current = history[this.state.stepNumber]
-        const { winner } = calculateWinner(current.squares)
+        const { winner, spots } = calculateWinner(current.squares)
         const status =
             this.state.stepNumber === 9 ? 'Draw' :
                 (winner ? 'Winner: ' + winner :
@@ -127,6 +127,7 @@ class Game extends React.Component {
                 <div className="game-board">
                     <Board
                         squares={current.squares}
+                        spots={spots}
                         onClick={(x, y) => this.handleClick(x, y)}
                     />
                 </div>
@@ -160,14 +161,14 @@ function calculateWinner(squares) {
             return {
                 winner: squares[a % 3][a / 3 >> 0],
                 spots: [
-                    { x: a % 3, y: a / 3 >> 0 },
-                    { x: b % 3, y: b / 3 >> 0 },
-                    { x: c % 3, y: c / 3 >> 0 }
+                    `${a % 3},${a / 3 >> 0}`,
+                    `${b % 3},${b / 3 >> 0}`,
+                    `${c % 3},${c / 3 >> 0}`
                 ]
             };
         }
     }
-    return {};
+    return {spots:[]};
 }
 
 ReactDOM.render(
